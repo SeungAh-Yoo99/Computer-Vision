@@ -146,6 +146,7 @@ void BinaryEdgeDetection(BYTE* Bin, BYTE* Out, int W, int H)
 	}
 }
 
+// 입력 받은 좌표로 직사각형 그리기
 void DrawRectOutline(BYTE* Img, int W, int H, int LU_X, int LU_Y, int RD_X, int RD_Y)
 {
 	for (int i = LU_X + LU_Y * W; i <= RD_X + LU_Y * W; i++) Img[i] = 255; // 위 가로 선
@@ -154,10 +155,69 @@ void DrawRectOutline(BYTE* Img, int W, int H, int LU_X, int LU_Y, int RD_X, int 
 	for (int i = RD_X + LU_Y * W; i <= RD_X + RD_Y * W; i += W) Img[i] = 255; // 오른쪽 세로 선
 }
 
+// 입력 받은 좌표에 십자 그리기
 void DrawCrossLine(BYTE* Img, int W, int H, int Cx, int Cy)
 {
 	for (int i = Cy * W; i < (Cy + 1) * W; i++) Img[i] = 255; // 가로 선
 	for (int i = Cx; i < W * H; i += W) Img[i] = 255; // 세로 선
+}
+
+// 이진영상에서 원의 무게중심 구하기
+void Obtain2DCenter(int LU_X, int LU_Y, int RD_X, int RD_Y, int* cenx, int* ceny)
+{
+	int sumx = 0, sumy = 0;
+	for (int i = LU_X; i <= RD_X; i++)
+		sumx += i;
+	if (RD_X - LU_X != 0)
+		*cenx = sumx / (RD_X - LU_X);
+
+	for (int i = LU_Y; i <= RD_Y; i++)
+		sumy += i;
+	if (RD_Y - LU_Y != 0)
+		*ceny = sumy / (RD_Y - LU_Y);
+}
+
+void Obtain2DBoundingBox(BYTE* Image, int W, int H, int* LU_X, int* LU_Y, int* RD_X, int* RD_Y) {
+	int flag = 0;
+	for (int i = 0; i < H; i++) {
+		for (int j = 0; j < W; j++)
+			if (Image[i * W + j] == 0) {
+				*LU_Y = i;
+				flag = 1;
+				break;
+			}
+		if (flag == 1) break;
+	}
+	flag = 0;
+	for (int i = H - 1; i >= 0; i--) {
+		for (int j = W - 1; j >= 0; j--)
+			if (Image[i * W + j] == 0) {
+				*RD_Y = i;
+				flag = 1;
+				break;
+			}
+		if (flag == 1) break;
+	}
+	flag = 0;
+	for (int i = 0; i < W; i++) {
+		for (int j = 0; j < H; j++)
+			if (Image[i + W * j] == 0) {
+				*LU_X = i;
+				flag = 1;
+				break;
+			}
+		if (flag == 1) break;
+	}
+	flag = 0;
+	for (int i = W - 1; i >= 0; i--) {
+		for (int j = H - 1; j >= 0; j--)
+			if (Image[i + W * j] == 0) {
+				*RD_X = i;
+				flag = 1;
+				break;
+			}
+		if (flag == 1) break;
+	}
 }
 
 int main()
@@ -196,48 +256,18 @@ int main()
 	int LU_X = 0, LU_Y = 0, RD_X = 0, RD_Y = 0;
 
 	// 1) 동공 영역에 외접하는 직사각형
-	for (int i = 0; i < H; i++)
-		for (int j = 0; j < W; j++)
-			if (Temp[i * W + j] == 0) {
-				RD_Y = i;
-				break;
-			}
-	for (int i = H - 1; i >= 0; i--)
-		for (int j = W - 1; j >= 0; j--)
-			if (Temp[i * W + j] == 0) {
-				LU_Y = i;
-				break;
-			}
-	for (int i = 0; i < W; i++)
-		for (int j = 0; j < H; j++)
-			if (Temp[i + W * j] == 0) {
-				RD_X = i;
-				break;
-			}
-	for (int i = W - 1; i >= 0; i--)
-		for (int j = H - 1; j >= 0; j--)
-			if (Temp[i + W * j] == 0) {
-				LU_X = i;
-				break;
-			}
-	// BinaryEdgeDetection(Temp, Output, W, H);
+	Obtain2DBoundingBox(Temp, W, H, &LU_X, &LU_Y, &RD_X, &RD_Y);
 	DrawRectOutline(Output, W, H, LU_X, LU_Y, RD_X, RD_Y);
 
 	// 2) 동공 영역의 무게중심을 통과하는 수평선/수직선
-	int sumx = 0, sumy = 0, cenx = 0, ceny = 0;
-	for (int i = LU_X; i <= RD_X; i++)
-		sumx += i;
-	cenx = sumx / (RD_X - LU_X);
-	for (int i = LU_Y; i <= RD_Y; i++)
-		sumy += i;
-	ceny = sumy / (RD_Y - LU_Y);
-
+	int cenx, ceny;
+	Obtain2DCenter(LU_X, LU_Y, RD_X, RD_Y, &cenx, &ceny);
 	DrawCrossLine(Output, W, H, cenx, ceny);
 
 
 	// 3단계: 처리된 결과 출력
 	SaveBMPFile(hf, hInfo, hRGB, Output, W, H, "pupil1_output.bmp");
-	//SaveBMPFile(hf, hInfo, hRGB, Output, W, H, "pupil2_output.bmp");
+	// SaveBMPFile(hf, hInfo, hRGB, Output, W, H, "pupil2_output.bmp");
 
 	free(Image);
 	free(Temp);
