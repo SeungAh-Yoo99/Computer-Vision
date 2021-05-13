@@ -325,6 +325,34 @@ BYTE MinPooling(BYTE* arr, int size)
 	return arr[0];
 }
 
+void MedianFiltering(BYTE* Image, BYTE* Output, int W, int H, int size)
+{
+	int Length = size;  // 마스크의 한 변의 길이
+
+	int Margin = Length / 2; // 마진의 크기
+
+	int WSize = Length * Length; // 마스크의 넓이
+
+	BYTE* temp = (BYTE*)malloc(sizeof(BYTE) * WSize); // 마스크 배열 선언
+
+	int W = hInfo.biWidth, H = hInfo.biHeight;
+	int i, j, m, n;
+
+	for (i = Margin; i < H - Margin; i++) {
+		for (j = Margin; j < W - Margin; j++) { // 영상의 상하좌우 마진
+			for (m = -Margin; m <= Margin; m++) {
+				for (n = -Margin; n <= Margin; n++) {
+					temp[(m + Margin) * Length + (n + Margin)] = Image[(i + m) * W + j + n];
+					// temp 배열에 해당 위치의 마스크 크기만큼의 픽셀 정보를 저장.
+				}
+			}
+			Output[i * W + j] = Median(temp, WSize);
+			// temp 배열에 저장된 픽셀 값들 중 가운데 값을 센터에 저장.
+		}
+	}
+	free(temp);
+}
+
 int main()
 {
 	BITMAPFILEHEADER hf; // 14바이트
@@ -372,32 +400,7 @@ int main()
 	//ContrastAdj(Image, Output, hInfo.biWidth, hInfo.biHeight, 0.5);
 
 	for (int x = 5; x <= 9; x += 2) {
-		/* Median filtering */
-		int Length = x;  // 마스크의 한 변의 길이
-
-		int Margin = Length / 2; // 마진의 크기
-
-		int WSize = Length * Length; // 마스크의 넓이
-
-		BYTE* temp = (BYTE*)malloc(sizeof(BYTE) * WSize); // 마스크 배열 선언
-
-		int W = hInfo.biWidth, H = hInfo.biHeight;
-		int i, j, m, n;
-
-		for (i = Margin; i < H - Margin; i++) {
-			for (j = Margin; j < W - Margin; j++) { // 영상의 상하좌우 마진
-				for (m = -Margin; m <= Margin; m++) {
-					for (n = -Margin; n <= Margin; n++) {
-						temp[(m + Margin) * Length + (n + Margin)] = Image[(i + m) * W + j + n];
-						// temp 배열에 해당 위치의 마스크 크기만큼의 픽셀 정보를 저장.
-					}
-				}
-				Output[i * W + j] = Median(temp, WSize);
-				// temp 배열에 저장된 픽셀 값들 중 가운데 값을 센터에 저장.
-			}
-		}
-		free(temp);
-		/* Median filtering */
+		MedianFiltering(Image, Output, W, H, x);
 
 		// AverageConv(Image, Output, hInfo.biWidth, hInfo.biHeight);
 
