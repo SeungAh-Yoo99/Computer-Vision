@@ -1,0 +1,7 @@
+﻿  week11.cpp
+C:\Users\ssh\OneDrive\문서\GitHub\Computer-Vision\week 11\week 11\week11.cpp(161,43): warning C4244: '=': 'long'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ssh\OneDrive\문서\GitHub\Computer-Vision\week 11\week 11\week11.cpp(181,43): warning C4244: '=': 'long'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ssh\OneDrive\문서\GitHub\Computer-Vision\week 11\week 11\week11.cpp(201,43): warning C4244: '=': 'long'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ssh\OneDrive\문서\GitHub\Computer-Vision\week 11\week 11\week11.cpp(221,43): warning C4244: '=': 'long'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\ssh\OneDrive\문서\GitHub\Computer-Vision\week 11\week 11\week11.cpp(241,43): warning C4244: '=': 'long'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  week 11.vcxproj -> C:\Users\ssh\OneDrive\문서\GitHub\Computer-Vision\week 11\Debug\week 11.exe
